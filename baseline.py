@@ -1,6 +1,7 @@
 def simple_agent(observation):
     text = (observation["issue_title"] + " " + observation["issue_description"]).lower()
-    files = str(observation["files_changed"]).lower()
+    files = [f.lower() for f in observation["files_changed"]]
+    files_text = " ".join(files)
     diff = observation["code_diff"].lower()
 
     # ── Severity ──────────────────────────────────────────────
@@ -22,7 +23,7 @@ def simple_agent(observation):
         component = "BACKEND"
 
     # ── Fix Suggestion ────────────────────────────────────────
-    if "injection" in text or "sql" in files:
+    if "injection" in text or "sql" in files_text:
         fix = "Use parameterized queries to prevent SQL injection"
     elif "null" in text or "none" in diff:
         fix = "Add null check before accessing length or property"
@@ -54,6 +55,29 @@ def simple_agent(observation):
     return {
         "severity": severity,
         "component": component,
-        "fix_suggestion": fix,
-        "confidence": 0.8
+        "fix_suggestion": fix
     }
+if __name__ == "__main__":
+    from env import BugTriageEnv
+
+    env = BugTriageEnv()
+
+    total_reward = 0
+    n = len(env.dataset)
+
+    print("Running evaluation on full dataset (15 tasks)...\n")
+
+    for i in range(n):
+        obs = env.reset()
+        action = simple_agent(obs)
+
+        _, reward, _, info = env.step(action)
+
+        print(f"Sample {i+1}: Reward = {reward:.2f}")
+        total_reward += reward
+
+    avg_reward = total_reward / n
+
+    print("\n====================")
+    print(f"Average Reward: {avg_reward:.2f}")
+    print("====================")

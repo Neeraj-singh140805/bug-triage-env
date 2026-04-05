@@ -5,10 +5,20 @@ from dataset import DATASET
 def compute_fix_score(predicted, actual):
     pred_words = set(predicted.lower().split())
     actual_words = set(actual.lower().split())
-    overlap = pred_words.intersection(actual_words)
-    if len(actual_words) == 0:
+
+    if len(pred_words) == 0 or len(actual_words) == 0:
         return 0
-    return len(overlap) / len(actual_words)
+
+    overlap = pred_words.intersection(actual_words)
+
+    precision = len(overlap) / len(pred_words)
+    recall = len(overlap) / len(actual_words)
+
+    if precision + recall == 0:
+        return 0
+
+    f1 = 2 * (precision * recall) / (precision + recall)
+    return f1
 
 
 class BugTriageEnv:
