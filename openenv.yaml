@@ -1,0 +1,25 @@
+name: bug-triage-env
+description: AI agent environment for bug triage and code review in software development pipelines
+
+observation_space:
+  issue_title: string
+  issue_description: string
+  files_changed: list[string]
+  code_diff: string
+
+action_space:
+  severity: string
+  component: string
+  fix_suggestion: string
+
+reward:
+  type: float
+  range: [0.0, 1.0]
+
+tasks:
+  - name: easy
+    description: classify severity of bugs
+  - name: medium
+    description: identify affected component
+  - name: hard
+    description: suggest fixes for bugs
