@@ -1,5 +1,4 @@
 import random
-from models import Observation, Action, Reward
 from dataset import DATASET
 
 
@@ -28,7 +27,7 @@ class BugTriageEnv:
         }
         return observation
 
-    def step(self, action: Action):
+    def step(self, action):
         gt = self.current_task["ground_truth"]   # ← was missing
 
         severity_correct = action["severity"] == gt["severity"]     # ← was missing
@@ -43,7 +42,7 @@ class BugTriageEnv:
         score += fix_score * 0.3   # ← partial fix credit
 
         done = True
-        return self.reset(), score, done, {"ground_truth": gt}
+        return None, score, done, {"ground_truth": gt}
 
     def state(self):
         return self.current_task

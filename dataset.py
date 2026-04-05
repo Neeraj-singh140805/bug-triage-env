@@ -38,7 +38,7 @@ DATASET = [
     "code_diff": "console.warn('deprecated')",
     "ground_truth": {
         "severity": "LOW",
-        "component": "FRONTEND",
+        "component": "UI",
         "fix": "Remove deprecated warning"
     }
 },
@@ -128,7 +128,7 @@ DATASET = [
 {
     "difficulty": "medium",
     "issue_title": "Session timeout issue",
-    "issue_description": "User session expires too जल्दी",
+    "issue_description": "User session expires too quickly",
     "files_changed": ["session.js"],
     "code_diff": "timeout = 5 seconds",
     "ground_truth": {
