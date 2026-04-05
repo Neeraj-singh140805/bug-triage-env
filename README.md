@@ -134,6 +134,24 @@ This environment can be used to train AI agents that assist developers in:
 
 ---
 
+## 📊 Evaluation
+
+Run evaluation across all tasks:
+
+```bash
+python evaluate.py
+```
+
+Example Output:
+
+Sample 1: Reward = 0.70
+Sample 2: Reward = 0.30
+
+Average Reward: 0.52
+
+This shows how well the agent performs across different difficulty levels.
+
+
 ## 🧪 Run Project
 
 ```bash

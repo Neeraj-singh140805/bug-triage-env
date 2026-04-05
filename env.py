@@ -1,7 +1,16 @@
 import random
 from models import Observation, Action, Reward
 from dataset import DATASET
+def compute_fix_score(predicted, actual):
+    pred_words = set(predicted.lower().split())
+    actual_words = set(actual.lower().split())
 
+    overlap = pred_words.intersection(actual_words)
+
+    if len(actual_words) == 0:
+        return 0
+
+    return len(overlap) / len(actual_words)
 class BugTriageEnv:
 
     def __init__(self):
@@ -26,7 +35,7 @@ class BugTriageEnv:
         # Compare with ground truth (simple for now)
         severity_correct = action["severity"] == gt["severity"]
         component_correct = action["component"] == gt["component"]
-        fix_match = gt["fix"].lower() in action["fix_suggestion"].lower()
+        fix_score = compute_fix_score(action["fix_suggestion"], gt["fix"])
 
         # Temporary scoring
         score = 0
@@ -34,7 +43,7 @@ class BugTriageEnv:
             score += 0.4
         if component_correct:
             score += 0.3
-        if fix_match:
+        if fix_score:
             score += 0.3
 
         done = True
