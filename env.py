@@ -26,33 +26,40 @@ class BugTriageEnv:
     def __init__(self):
         self.dataset = DATASET
         self.current_task = None
+        self.current_obs = None   # ✅ store observation
 
     def reset(self):
         self.current_task = random.choice(self.dataset)
-        observation = {
+        self.current_obs = {
             "issue_title": self.current_task["issue_title"],
             "issue_description": self.current_task["issue_description"],
             "files_changed": self.current_task["files_changed"],
             "code_diff": self.current_task["code_diff"],
         }
-        return observation
+        return self.current_obs
 
     def step(self, action):
-        gt = self.current_task["ground_truth"]   # ← was missing
+        # ✅ FIX 1: guard against misuse
+        if self.current_task is None:
+            raise RuntimeError("Call reset() before step()")
 
-        severity_correct = action["severity"] == gt["severity"]     # ← was missing
-        component_correct = action["component"] == gt["component"]  # ← was missing
-        fix_score = compute_fix_score(action["fix_suggestion"], gt["fix"])  # ← use the function!
+        gt = self.current_task["ground_truth"]
 
-        score = 0   # ← must come BEFORE any score +=
+        severity_correct = action["severity"] == gt["severity"]
+        component_correct = action["component"] == gt["component"]
+        fix_score = compute_fix_score(action["fix_suggestion"], gt["fix"])
+
+        score = 0
         if severity_correct:
             score += 0.4
         if component_correct:
             score += 0.3
-        score += fix_score * 0.3   # ← partial fix credit
+        score += fix_score * 0.3
 
         done = True
-        return None, score, done, {"ground_truth": gt}
+
+        # ✅ FIX 2: return SAME observation (not None, not reset)
+        return self.current_obs, score, done, {"ground_truth": gt}
 
     def state(self):
-        return self.current_task
+        return self.current_obs

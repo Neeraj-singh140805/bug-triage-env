@@ -13,11 +13,11 @@ def simple_agent(observation):
         severity = "LOW"
 
     # ── Component ─────────────────────────────────────────────
-    if any(k in files for k in ["css", "html", "jsx", "navbar", "profile", "footer", "index"]):
+    if any(k in files_text for k in ["css", "html", "jsx", "navbar", "profile", "footer", "index"]):
         component = "UI"
-    elif any(k in files for k in ["db", "sql", "database"]):
+    elif any(k in files_text for k in ["db", "sql", "database"]):
         component = "DATABASE"
-    elif any(k in files for k in ["api", "login", "auth", "session"]):
+    elif any(k in files_text for k in ["api", "login", "auth", "session"]):
         component = "BACKEND"
     else:
         component = "BACKEND"
@@ -35,11 +35,11 @@ def simple_agent(observation):
         fix = "Use == instead of = for comparison"
     elif "timeout" in text or "session" in text:
         fix = "Increase timeout or session duration"
-    elif "color" in text or "css" in files:
+    elif "color" in text or "css" in files_text:
         fix = "Update color to match design specification"
     elif "slow" in text or "performance" in text:
         fix = "Optimize API calls and reduce redundant requests"
-    elif "login" in text or "auth" in files:
+    elif "login" in text or "auth" in files_text:
         fix = "Check authentication logic and password validation"
     elif "typo" in text or "spelling" in text:
         fix = "Correct the spelling error in the text"
@@ -67,15 +67,21 @@ if __name__ == "__main__":
 
     print("Running evaluation on full dataset (15 tasks)...\n")
 
-    for i in range(n):
-        obs = env.reset()
-        action = simple_agent(obs)
+    for i, task in enumerate(env.dataset):
+        env.current_task = task
 
+        obs = {
+            "issue_title": task["issue_title"],
+            "issue_description": task["issue_description"],
+            "files_changed": task["files_changed"],
+            "code_diff": task["code_diff"],
+        }
+
+        action = simple_agent(obs)
         _, reward, _, info = env.step(action)
 
         print(f"Sample {i+1}: Reward = {reward:.2f}")
         total_reward += reward
-
     avg_reward = total_reward / n
 
     print("\n====================")

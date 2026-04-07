@@ -10,29 +10,43 @@ from baseline import simple_agent
 
 env = BugTriageEnv()
 
-def run():
-    time.sleep(1)  # makes it feel like AI is thinking
 
-    obs = env.reset()
+def run(issue_title, issue_desc, files, code):
+    time.sleep(1)
+
+    obs = {
+        "issue_title": issue_title,
+        "issue_description": issue_desc,
+        "files_changed": files.split(","),
+        "code_diff": code,
+    }
+
+    env.current_task = {
+        **obs,
+        "ground_truth": {"severity": "LOW", "component": "UI", "fix": ""}
+    }
+
     action = simple_agent(obs)
     _, reward, _, _ = env.step(action)
 
     return (
         f"📝 **Title:** {obs['issue_title']}\n\n"
         f"📄 **Description:** {obs['issue_description']}\n\n"
-        f"📂 **Files:** {', '.join(obs['files_changed'])}\n\n"
+        f"📂 **Files:** {files}\n\n"
         f"💻 **Code:**\n{obs['code_diff']}",
 
         f"⚠ **Severity:** {action['severity']}\n"
         f"🧩 **Component:** {action['component']}\n"
         f"🛠 **Fix Suggestion:** {action['fix_suggestion']}",
 
-        f"🏆 **Reward Score:** {reward:.2f}\n\n📈 Performance: {'Excellent' if reward > 0.8 else 'Good' if reward > 0.5 else 'Needs Improvement'}"
+        f"🏆 **Reward Score:** {reward:.2f}\n\n"
+        f"📈 Performance: {'Excellent' if reward > 0.8 else 'Good' if reward > 0.5 else 'Needs Improvement'}"
     )
+
 
 with gr.Blocks(theme=gr.themes.Base(primary_hue="violet")) as demo:
 
-    # 🔥 Hero Section
+    # 🔥 HERO
     gr.Markdown("""
     # 🚀 Bug Triage AI  
     ### ⚡ Smart debugging powered by AI  
@@ -40,21 +54,56 @@ with gr.Blocks(theme=gr.themes.Base(primary_hue="violet")) as demo:
     ---
     """)
 
-    # 🔘 Button
+    # 🧾 INPUT SECTION (NEW 🔥)
+    gr.Markdown("### 🧾 Enter Bug Details")
+
     with gr.Row():
-        btn = gr.Button("🚀 Analyze Bug Instantly", variant="primary", scale=2)
+        title_input = gr.Textbox(
+            label="Bug Title",
+            value="Broken navigation link"
+        )
 
-    # 📦 Output Sections
     with gr.Row():
-        obs_box = gr.Textbox(label="📥 Bug Details", lines=10)
-        action_box = gr.Textbox(label="🤖 AI Analysis", lines=10)
-        reward_box = gr.Textbox(label="📊 Confidence Score", lines=2)
+        desc_input = gr.Textbox(
+            label="Bug Description",
+            value="Navbar link redirects to wrong page",
+            lines=2
+        )
 
-    # ⚙️ Action
-    btn.click(run, outputs=[obs_box, action_box, reward_box], show_progress=True)
+    with gr.Row():
+        files_input = gr.Textbox(
+            label="Files Changed (comma separated)",
+            value="navbar.jsx"
+        )
 
-    # 💎 Footer
+    with gr.Row():
+        code_input = gr.Textbox(
+            label="Code Diff",
+            value='<a href="/hom">Home</a>',
+            lines=3
+        )
+
+    # 🔘 BUTTON (better visibility)
+    with gr.Row():
+        btn = gr.Button("🚀 Analyze Bug", variant="primary")
+
+    # 📦 OUTPUT SECTION
+    with gr.Row():
+        obs_box = gr.Markdown()
+        action_box = gr.Markdown()
+        reward_box = gr.Markdown()
+
+    # ⚙️ ACTION
+    btn.click(
+        run,
+        inputs=[title_input, desc_input, files_input, code_input],
+        outputs=[obs_box, action_box, reward_box],
+        show_progress=True
+    )
+
+    # 💎 FOOTER
     gr.Markdown("---")
     gr.Markdown("💡 Built with ❤️ for intelligent bug triage systems")
+
 
 demo.launch()
