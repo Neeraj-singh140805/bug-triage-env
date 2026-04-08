@@ -1,160 +1,182 @@
-# 🐞 Bug Triage & Code Review Environment (OpenEnv)
+# 🐞 Bug Triage AI — OpenEnv Project
 
-## 🚀 Overview
+## 🚀 Live Demo
 
-This project implements a real-world OpenEnv environment where an AI agent performs bug triage and code review tasks, similar to what software engineers do in real development pipelines.
-
-The agent is trained to:
-
-* Classify bug severity
-* Identify affected system components
-* Suggest fixes for bugs
+👉 Hugging Face Space: **https://huggingface.co/spaces/Neeraj140805/bug-triage-env**
 
 ---
 
-## 🎯 Objective
+## 📌 Overview
 
-Simulate a realistic workflow where an AI agent processes bug reports and code changes to assist in software maintenance and debugging.
+This project implements a **Bug Triage AI system** using an OpenEnv environment, where an AI agent simulates real-world software engineering tasks:
 
----
+* 🔍 Bug classification
+* 🧩 Component detection
+* 🛠️ Fix suggestion
 
-## 👀 Observation Space
-
-At each step, the agent receives:
-
-* `issue_title`: Short summary of the bug
-* `issue_description`: Detailed explanation
-* `files_changed`: List of modified files
-* `code_diff`: Code snippet showing changes
+It provides a **fully interactive UI** where users can input bugs and evaluate AI performance.
 
 ---
 
-## 🎮 Action Space
+## 🎯 Key Features
 
-The agent must output:
-
-* `severity`: LOW / MEDIUM / HIGH
-* `component`: UI / BACKEND / DATABASE / API
-* `fix_suggestion`: Text describing how to fix the bug
-
----
-
-## 🧩 Tasks
-
-### 🟢 Easy — Severity Classification
-
-Classify how critical the bug is.
-
-### 🟡 Medium — Component Detection
-
-Identify which part of the system is affected.
-
-### 🔴 Hard — Code Review & Fix Suggestion
-
-Analyze code and suggest a fix.
+* ✅ AI-powered bug analysis
+* ✅ Explainable decisions (Why this decision?)
+* ✅ Real-time scoring system
+* ✅ User-controlled evaluation (Expected Answer system)
+* ✅ Clean and modern Gradio UI
 
 ---
 
-## 🧠 Reward Design
+## 🧠 How It Works
 
-The agent is rewarded based on:
+1. User enters:
 
-* Severity correctness (40%)
-* Component correctness (30%)
-* Fix quality (30%)
+   * Bug title
+   * Description
+   * Files changed
+   * Code diff
 
-Partial rewards are given for partially correct answers.
+2. AI predicts:
 
----
-
-## ⚙️ Environment API
-
-* `reset()` → Returns initial observation
-* `step(action)` → Returns (observation, reward, done, info)
-* `state()` → Returns current state
-
----
-
-## 🏆 Why This Matters
-
-Bug triage and code review are essential in real-world software development. Automating these tasks can significantly improve developer productivity.
-
----
-
-## 🛠️ Setup (To be added)
-
-Instructions for running environment and baseline agent.
-
----
-
-## 📊 Baseline (To be added)
-
-Performance of a simple AI agent using OpenAI API.
-
-
-## ⚙️ How It Works
-
-1. The environment provides a bug report (observation).
-2. The agent analyzes the issue and predicts:
-
-   * Severity
-   * Component
+   * Severity (LOW / MEDIUM / HIGH)
+   * Component (UI / BACKEND / DATABASE / API)
    * Fix suggestion
-3. The environment evaluates the response using a weighted reward system.
-4. A score between 0 and 1 is returned.
+
+3. User provides **expected answers**
+
+4. System calculates reward:
+
+   * Severity match
+   * Component match
+   * Fix similarity
 
 ---
 
-## 🔍 Example Run
+## 📊 Reward System
 
-Observation:
-Button color mismatch
+| Metric      | Weight |
+| ----------- | ------ |
+| Severity    | 40%    |
+| Component   | 30%    |
+| Fix Quality | 30%    |
 
-Agent Output:
-
-* Severity: LOW
-* Component: UI
-* Fix: Check code and fix the issue
-
-Reward:
-0.7
-
-Explanation:
-The agent correctly identified severity and component but gave a generic fix, so partial reward was given.
+Final score ∈ [0, 1]
 
 ---
 
-## 🚀 Real-World Use
+## 🖥️ UI Preview
 
-This environment can be used to train AI agents that assist developers in:
+* Interactive bug input form
+* AI analysis panel
+* Score breakdown with explanations
+* Confidence + performance indicators
+### 🔹 Input Interface
+![Input UI](./assets/input copy.png)
 
-* Debugging code
-* Prioritizing bugs
-* Suggesting fixes
+### 🔹 AI Analysis Output
+![Output UI](./assets/output copy.png)
 
 ---
 
-## 📊 Evaluation
+## 📦 Project Structure
 
-Run evaluation across all tasks:
+```bash
+.
+├── app.py              # Gradio UI
+├── env.py              # OpenEnv environment
+├── baseline.py         # Rule-based agent
+├── inference.py        # Submission entry point
+├── evaluate.py         # Evaluation script
+├── requirements.txt
+└── README.md
+```
+
+---
+
+## ⚙️ Setup & Run Locally
+
+```bash
+pip install -r requirements.txt
+python app.py
+```
+
+---
+
+## 🧪 Run Evaluation
 
 ```bash
 python evaluate.py
 ```
 
-Example Output:
+---
 
-Sample 1: Reward = 0.70
-Sample 2: Reward = 0.30
+## 🤖 Inference (Important for Submission)
 
-Average Reward: 0.52
+The `inference.py` file:
 
-This shows how well the agent performs across different difficulty levels.
+* Uses environment variables:
 
+  * `API_BASE_URL`
+  * `MODEL_NAME`
+  * `HF_TOKEN`
+* Runs the agent
+* Outputs structured predictions
 
-## 🧪 Run Project
+Logs follow:
 
-```bash
-python baseline.py
+```
+START → STEP → END
 ```
 
+---
+
+## 🔍 Example
+
+**Input:**
+
+```
+Title: Broken navigation link  
+Description: Navbar redirects to wrong page  
+File: navbar.jsx  
+Code: <a href="/hom">Home</a>
+```
+
+**Output:**
+
+```
+Severity: MEDIUM  
+Component: UI  
+Fix: Correct the route path to "/home"
+```
+
+---
+
+## 🏆 Why This Project Stands Out
+
+* 🔥 Real-world problem (bug triage automation)
+* 🧠 Explainable AI decisions
+* ⚖️ Honest evaluation system (user-controlled ground truth)
+* 🎯 Interactive demo (judge-friendly)
+
+---
+
+## 📌 Future Improvements
+
+* LLM-based fix generation
+* Dataset-driven evaluation
+* Leaderboard system
+
+---
+
+## ❤️ Built For
+
+* AI Engineering
+* Developer Productivity Tools
+* OpenEnv Evaluation Systems
+
+---
+
+## 👨‍💻 Author
+
+Neeraj Singh
