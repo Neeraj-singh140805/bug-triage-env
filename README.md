@@ -72,10 +72,10 @@ Final score ∈ [0, 1]
 * Score breakdown with explanations
 * Confidence + performance indicators
 ### 🔹 Input Interface
-![Input UI](./assets/input copy.png)
+![Input UI](./assets/input.png)
 
 ### 🔹 AI Analysis Output
-![Output UI](./assets/output copy.png)
+![Output UI](./assets/output.png)
 
 ---
 
