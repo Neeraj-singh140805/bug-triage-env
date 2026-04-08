@@ -47,8 +47,8 @@ def simple_agent(observation):
         fix = "Fix margin or padding for correct alignment"
     elif "overflow" in text:
         fix = "Use responsive width instead of fixed width"
-    elif "link" in text or "href" in diff:
-        fix = "Fix the route path in the navigation link"
+    elif "href" in diff or "route" in text.lower():
+        fix = "Fix incorrect route path or broken navigation link"
     else:
         fix = "Review the code and fix the identified issue"
 
