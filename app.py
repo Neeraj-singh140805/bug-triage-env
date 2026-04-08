@@ -20,18 +20,18 @@ env = BugTriageEnv()
 
 api = FastAPI()
 
-class ResetRequest(BaseModel):
+class StepRequest(BaseModel):
     issue_title: str
     issue_description: str
     files_changed: list[str]
     code_diff: str
 
 @api.post("/reset")
-def reset(req: ResetRequest):
+def reset():
     return {"status": "ok"}
 
 @api.post("/step")
-def step(req: ResetRequest):
+def step(req: StepRequest):
     obs = {
         "issue_title": req.issue_title,
         "issue_description": req.issue_description,
