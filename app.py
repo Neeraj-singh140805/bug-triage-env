@@ -3,6 +3,11 @@ import sys
 import os
 import time
 import html
+import threading
+
+from fastapi import FastAPI
+from pydantic import BaseModel
+import uvicorn
 
 sys.path.append(os.path.dirname(__file__))
 
@@ -10,6 +15,40 @@ from env import BugTriageEnv
 from baseline import simple_agent
 
 env = BugTriageEnv()
+
+# ================= API (REQUIRED) ================= #
+
+api = FastAPI()
+
+class ResetRequest(BaseModel):
+    issue_title: str
+    issue_description: str
+    files_changed: list[str]
+    code_diff: str
+
+@api.post("/reset")
+def reset(req: ResetRequest):
+    return {"status": "ok"}
+
+@api.post("/step")
+def step(req: ResetRequest):
+    obs = {
+        "issue_title": req.issue_title,
+        "issue_description": req.issue_description,
+        "files_changed": req.files_changed,
+        "code_diff": req.code_diff,
+    }
+
+    action = simple_agent(obs)
+
+    return {
+        "severity": action["severity"],
+        "component": action["component"],
+        "fix": action["fix_suggestion"]
+    }
+
+# ================= UI ================= #
+
 custom_css = """
 body {
     background: linear-gradient(135deg, #0f0f1a, #1a1a2e);
@@ -32,11 +71,10 @@ textarea, input {
 }
 """
 
-
 def run(issue_title, issue_desc, files, code,
         exp_severity, exp_component, exp_fix):
 
-    time.sleep(0.6)
+    time.sleep(0.5)
 
     obs = {
         "issue_title": issue_title,
@@ -46,6 +84,7 @@ def run(issue_title, issue_desc, files, code,
     }
 
     action = simple_agent(obs)
+
     env.current_task = {
         **obs,
         "ground_truth": {
@@ -59,33 +98,6 @@ def run(issue_title, issue_desc, files, code,
         _, reward, _, _ = env.step(action)
     except Exception as e:
         return "❌ Error", str(e), "Fix env issue"
-    reason = []
-
-    if action["severity"] == "HIGH":
-        reason.append("Critical keywords detected (crash/security issue)")
-    elif action["severity"] == "MEDIUM":
-        reason.append("Moderate issue like performance or broken feature")
-    else:
-        reason.append("Minor issue with low impact")
-
-    if action["component"] == "UI":
-        reason.append("File indicates frontend/UI issue")
-    elif action["component"] == "DATABASE":
-        reason.append("Database-related file detected")
-    else:
-        reason.append("Backend logic involved")
-
-    reason.append("Rule-based agent matched patterns from bug description and file context")
-    reason_text = "\n".join([f"- {r}" for r in reason])
-
-    # 🎯 Score styling
-    color = "🟢" if reward > 0.8 else "🟡" if reward > 0.5 else "🔴"
-
-    confidence = (
-        "High Confidence" if reward > 0.8
-        else "Medium Confidence" if reward > 0.5
-        else "Low Confidence"
-    )
 
     safe_code = html.escape(obs["code_diff"])
 
@@ -94,9 +106,9 @@ def run(issue_title, issue_desc, files, code,
 📝 **Title:** {obs['issue_title']}  
 📄 **Description:** {obs['issue_description']}  
 📂 **Files:** {files}  
+
 💻 **Code**
-<pre style="background:#0d1117;padding:14px;border-radius:10px;
-border:1px solid #30363d;overflow-x:auto;">
+<pre style="background:#0d1117;padding:12px;border-radius:10px;">
 <code>{safe_code}</code>
 </pre>
 """,
@@ -104,25 +116,18 @@ border:1px solid #30363d;overflow-x:auto;">
         f"""### 🤖 AI Decision Engine
 ⚠ **Severity:** `{action['severity']}`  
 🧩 **Component:** `{action['component']}`  
+
 🛠 **Fix Suggestion:**  
 {action['fix_suggestion']}
-📌 **Why this decision?**
-{reason_text}
 """,
 
         f"""### 📊 Score
-🏆 **Reward:** {color} `{reward:.2f}`  
-📌 **Breakdown:**
-- Severity Match: {'✅' if action['severity'] == exp_severity else '❌'}
-- Component Match: {'✅' if action['component'] == exp_component else '❌'}
-📈 **Performance:**  
-{'🔥 Excellent' if reward > 0.8 else '⚡ Good' if reward > 0.5 else '❌ Needs Review'}
-🎯 **Confidence:** {confidence}
+🏆 Reward: `{reward:.2f}`
 """
     )
 
+# ================= UI BUILD ================= #
 
-# ✅ UI
 with gr.Blocks(theme=gr.themes.Base(primary_hue="violet"), css=custom_css) as demo:
 
     gr.Markdown("""
@@ -134,10 +139,26 @@ with gr.Blocks(theme=gr.themes.Base(primary_hue="violet"), css=custom_css) as de
 
     gr.Markdown("### 🧾 Enter Bug Details")
 
-    title_input = gr.Textbox(label="Bug Title", value="Broken navigation link")
-    desc_input = gr.Textbox(label="Bug Description", value="Navbar link redirects to wrong page", lines=2)
-    files_input = gr.Textbox(label="Files Changed (comma separated)", value="navbar.jsx")
-    code_input = gr.Textbox(label="Code Diff", value='<a href="/hom">Home</a>', lines=3)
+    title_input = gr.Textbox(
+        label="Bug Title",
+        value="Broken navigation link"
+    )
+
+    desc_input = gr.Textbox(
+        label="Bug Description",
+        value="Navbar link redirects to wrong page"
+    )
+
+    files_input = gr.Textbox(
+        label="Files Changed (comma separated)",
+        value="navbar.jsx"
+    )
+
+    code_input = gr.Textbox(
+        label="Code Diff",
+        value='<a href="/hom">Home</a>',
+        lines=3
+    )
 
     gr.Markdown("### 🎯 Expected Answer (for scoring)")
 
@@ -147,6 +168,7 @@ with gr.Blocks(theme=gr.themes.Base(primary_hue="violet"), css=custom_css) as de
             label="Expected Severity",
             value="LOW"
         )
+
         expected_component = gr.Dropdown(
             choices=["UI", "BACKEND", "DATABASE", "API"],
             label="Expected Component",
@@ -155,19 +177,10 @@ with gr.Blocks(theme=gr.themes.Base(primary_hue="violet"), css=custom_css) as de
 
     expected_fix = gr.Textbox(
         label="Expected Fix (optional)",
-        value="",
         placeholder="e.g. Use parameterized queries"
     )
 
     btn = gr.Button("🚀 Analyze Bug", variant="primary")
-
-    gr.Examples(
-        examples=[
-            ["App crashes on login", "App crashes when user logs in", "login.js", "if(user = null)"],
-            ["Slow API response", "API takes 10 seconds", "api.py", "time.sleep(10)"]
-        ],
-        inputs=[title_input, desc_input, files_input, code_input]
-    )
 
     with gr.Row():
         obs_box = gr.Markdown()
@@ -180,13 +193,18 @@ with gr.Blocks(theme=gr.themes.Base(primary_hue="violet"), css=custom_css) as de
             title_input, desc_input, files_input, code_input,
             expected_severity, expected_component, expected_fix
         ],
-        outputs=[obs_box, action_box, reward_box],
-        show_progress="full"
+        outputs=[obs_box, action_box, reward_box]
     )
 
     gr.Markdown("⚠️ Scoring is based on expected answers provided by the user.")
     gr.Markdown("---")
     gr.Markdown("💡 Built with ❤️ for intelligent bug triage systems")
 
+# ================= RUN SERVERS ================= #
+
+def run_api():
+    uvicorn.run(api, host="0.0.0.0", port=8000)
+
+threading.Thread(target=run_api).start()
 
 demo.launch(server_name="0.0.0.0", server_port=7860)
