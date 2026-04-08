@@ -31,7 +31,7 @@ def simple_agent(observation):
         fix = "Add proper loop exit condition"
     elif "memory" in text or "leak" in text:
         fix = "Clear unused objects or use proper memory management"
-    elif "=" in diff and "==" not in diff:
+    elif "=" in diff and "==" not in diff and any(k in files_text for k in [".js", ".py", ".ts"]):
         fix = "Use == instead of = for comparison"
     elif "timeout" in text or "session" in text:
         fix = "Increase timeout or session duration"

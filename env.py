@@ -39,7 +39,6 @@ class BugTriageEnv:
         return self.current_obs
 
     def step(self, action):
-        # ✅ FIX 1: guard against misuse
         if self.current_task is None:
             raise RuntimeError("Call reset() before step()")
 
@@ -57,8 +56,6 @@ class BugTriageEnv:
         score += fix_score * 0.3
 
         done = True
-
-        # ✅ FIX 2: return SAME observation (not None, not reset)
         return self.current_obs, score, done, {"ground_truth": gt}
 
     def state(self):

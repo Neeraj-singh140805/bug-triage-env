@@ -48,8 +48,6 @@ def run(issue_title, issue_desc, files, code,
     }
 
     action = simple_agent(obs)
-
-    # ✅ HONEST scoring (judge-controlled ground truth)
     env.current_task = {
         **obs,
         "ground_truth": {
@@ -63,8 +61,6 @@ def run(issue_title, issue_desc, files, code,
         _, reward, _, _ = env.step(action)
     except Exception as e:
         return "❌ Error", str(e), "Fix env issue"
-
-    # 🔥 Explainability
     reason = []
 
     if action["severity"] == "HIGH":
@@ -145,7 +141,6 @@ with gr.Blocks(theme=gr.themes.Base(primary_hue="violet"), css=custom_css) as de
     files_input = gr.Textbox(label="Files Changed (comma separated)", value="navbar.jsx")
     code_input = gr.Textbox(label="Code Diff", value='<a href="/hom">Home</a>', lines=3)
 
-    # 🔥 NEW SECTION (IMPORTANT)
     gr.Markdown("### 🎯 Expected Answer (for scoring)")
 
     with gr.Row():
@@ -168,7 +163,6 @@ with gr.Blocks(theme=gr.themes.Base(primary_hue="violet"), css=custom_css) as de
 
     btn = gr.Button("🚀 Analyze Bug", variant="primary")
 
-    # ✅ Examples
     gr.Examples(
         examples=[
             ["App crashes on login", "App crashes when user logs in", "login.js", "if(user = null)"],
