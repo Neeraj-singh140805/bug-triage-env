@@ -1,5 +1,5 @@
 from env import BugTriageEnv
-from baseline import simple_agent   # or llm_agent if you add later
+from baseline import simple_agent
 
 env = BugTriageEnv()
 

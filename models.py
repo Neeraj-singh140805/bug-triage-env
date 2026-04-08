@@ -9,10 +9,10 @@ class Observation(BaseModel):
 
 
 class Action(BaseModel):
-    severity: str  # LOW / MEDIUM / HIGH
-    component: str  # UI / BACKEND / DATABASE / API
+    severity: str
+    component: str 
     fix_suggestion: str
 
 
 class Reward(BaseModel):
-    score: float  # between 0 and 1
+    score: float

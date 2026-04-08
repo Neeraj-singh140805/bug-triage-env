@@ -1,9 +1,5 @@
 DATASET = [
 
-# ========================
-# 🟢 EASY TASKS (Severity)
-# ========================
-
 {
     "difficulty": "easy",
     "issue_title": "Typo in homepage title",

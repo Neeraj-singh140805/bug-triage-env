@@ -26,7 +26,7 @@ class BugTriageEnv:
     def __init__(self):
         self.dataset = DATASET
         self.current_task = None
-        self.current_obs = None   # ✅ store observation
+        self.current_obs = None
 
     def reset(self):
         self.current_task = random.choice(self.dataset)

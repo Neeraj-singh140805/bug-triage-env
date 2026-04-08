@@ -10,8 +10,6 @@ from env import BugTriageEnv
 from baseline import simple_agent
 
 env = BugTriageEnv()
-
-# 🎨 Custom CSS
 custom_css = """
 body {
     background: linear-gradient(135deg, #0f0f1a, #1a1a2e);
