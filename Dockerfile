@@ -5,7 +5,6 @@ COPY . .
 
 RUN pip install --no-cache-dir gradio fastapi uvicorn openai
 
-EXPOSE 8000
 EXPOSE 7860
 
 CMD ["python", "app.py"]
