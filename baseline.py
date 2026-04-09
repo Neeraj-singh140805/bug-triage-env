@@ -1,4 +1,58 @@
+import os
+from openai import OpenAI
+
 def simple_agent(observation):
+    api_base = os.environ.get("API_BASE_URL")
+    api_key = os.environ.get("API_KEY")
+
+    if api_base and api_key:
+        return llm_agent(observation, api_base, api_key)
+    else:
+        return rule_based_agent(observation)
+
+
+def llm_agent(observation, api_base, api_key):
+    try:
+        client = OpenAI(
+            base_url=api_base,
+            api_key=api_key
+        )
+
+        prompt = f"""You are a bug triage assistant. Analyze the following bug and respond with ONLY a JSON object, no markdown.
+
+Bug Title: {observation['issue_title']}
+Description: {observation['issue_description']}
+Files Changed: {observation['files_changed']}
+Code Diff: {observation['code_diff']}
+
+Respond with exactly this JSON format:
+{{
+    "severity": "LOW" or "MEDIUM" or "HIGH",
+    "component": "UI" or "BACKEND" or "DATABASE" or "API",
+    "fix_suggestion": "brief fix description"
+}}"""
+
+        response = client.chat.completions.create(
+            model=os.environ.get("MODEL_NAME", "gpt-4o-mini"),
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.1
+        )
+
+        import json
+        text = response.choices[0].message.content.strip()
+        text = text.replace("```json", "").replace("```", "").strip()
+        result = json.loads(text)
+
+        return {
+            "severity": result.get("severity", "LOW"),
+            "component": result.get("component", "UI"),
+            "fix_suggestion": result.get("fix_suggestion", "Review and fix the issue")
+        }
+    except Exception:
+        return rule_based_agent(observation)
+
+
+def rule_based_agent(observation):
     text = (observation["issue_title"] + " " + observation["issue_description"]).lower()
     files = [f.lower() for f in observation["files_changed"]]
     files_text = " ".join(files)
@@ -57,6 +111,8 @@ def simple_agent(observation):
         "component": component,
         "fix_suggestion": fix
     }
+
+
 if __name__ == "__main__":
     from env import BugTriageEnv
 
@@ -82,6 +138,7 @@ if __name__ == "__main__":
 
         print(f"Sample {i+1}: Reward = {reward:.2f}")
         total_reward += reward
+
     avg_reward = total_reward / n
 
     print("\n====================")
