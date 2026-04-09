@@ -7,7 +7,7 @@ def compute_fix_score(predicted, actual):
     actual_words = set(actual.lower().split())
 
     if len(pred_words) == 0 or len(actual_words) == 0:
-        return 0
+        return 0.5
 
     overlap = pred_words.intersection(actual_words)
 
@@ -15,7 +15,7 @@ def compute_fix_score(predicted, actual):
     recall = len(overlap) / len(actual_words)
 
     if precision + recall == 0:
-        return 0
+        return 0.5
 
     f1 = 2 * (precision * recall) / (precision + recall)
     return f1
@@ -54,6 +54,9 @@ class BugTriageEnv:
         if component_correct:
             score += 0.3
         score += fix_score * 0.3
+
+        # Clamp strictly between 0 and 1
+        score = max(0.01, min(0.99, score))
 
         done = True
         return self.current_obs, score, done, {"ground_truth": gt}
