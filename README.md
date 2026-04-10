@@ -6,96 +6,146 @@ colorTo: blue
 sdk: docker
 pinned: false
 ---
-
-# 🐞 Bug Triage AI — OpenEnv Project
-
-## 🚀 Live Demo
-
-👉 Hugging Face Space: **https://huggingface.co/spaces/Neeraj140805/bug-triage-env**
-
+ 
+<div align="center">
+ 
+# 🐞 Bug Triage AI
+ 
+### An AI agent that classifies bugs, detects affected components, and suggests fixes — with explainable decisions and real-time scoring.
+ 
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Hugging_Face-orange?style=for-the-badge)](https://huggingface.co/spaces/Neeraj140805/bug-triage-env)
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Gradio](https://img.shields.io/badge/Gradio-UI-FF7C00?style=for-the-badge)
+![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+ 
+</div>
+ 
 ---
-
+ 
 ## 📌 Overview
-
-This project implements a **Bug Triage AI system** using an OpenEnv environment, where an AI agent simulates real-world software engineering tasks:
-
-* 🔍 Bug classification
-* 🧩 Component detection
-* 🛠️ Fix suggestion
-
-It provides a **fully interactive UI** where users can input bugs and evaluate AI performance.
-
+ 
+**Bug Triage AI** is an [OpenEnv](https://openenv.dev) environment where an AI agent simulates real-world software engineering triage tasks. Given a bug report — title, description, changed files, and a code diff — the agent predicts severity, identifies the affected component, and proposes a fix. A built-in reward system lets users score the AI's decisions against their own expected answers.
+ 
 ---
-
+ 
+## 🖥️ App Screenshots
+ 
+### Input — Submit a Bug Report
+ 
+![Bug Triage AI — Input Form](screenshot_input.png)
+ 
+> Enter a bug title, description, affected files, and a code diff. Set your expected severity and component to enable scoring.
+ 
+---
+ 
+### Output — AI Analysis Results
+ 
+![Bug Triage AI — Output Panel](screenshot_output.png)
+ 
+> The AI Decision Engine returns the predicted severity, component, and a fix suggestion. The reward score is calculated instantly against your expected answers.
+ 
+---
+ 
 ## 🎯 Key Features
-
-* ✅ AI-powered bug analysis
-* ✅ Explainable decisions (Why this decision?)
-* ✅ Real-time scoring system
-* ✅ User-controlled evaluation (Expected Answer system)
-* ✅ Clean and modern Gradio UI
-
+ 
+| Feature | Description |
+|---|---|
+| 🤖 **AI-powered bug analysis** | Predicts severity, component, and fix from raw bug reports |
+| 💡 **Explainable decisions** | Every prediction comes with a "Why?" rationale |
+| 🎯 **Expected Answer system** | Users set ground truth — the system scores AI accuracy |
+| 📊 **Real-time reward scoring** | Weighted score computed instantly on submission |
+| 🎨 **Clean Gradio UI** | Dark-themed, developer-friendly interface |
+ 
 ---
-
+ 
 ## 🧠 How It Works
-
-1. User enters:
-   * Bug title
-   * Description
-   * Files changed
-   * Code diff
-
-2. AI predicts:
-   * Severity (LOW / MEDIUM / HIGH)
-   * Component (UI / BACKEND / DATABASE / API)
-   * Fix suggestion
-
-3. User provides **expected answers**
-
-4. System calculates reward:
-   * Severity match
-   * Component match
-   * Fix similarity
-
+ 
+```
+User Input ──► AI Agent ──► Predictions ──► Scoring
+  (bug info)    (triage)    (severity,       (vs expected
+                            component,        answers)
+                            fix)
+```
+ 
+**Step-by-step:**
+ 
+1. **User inputs** — bug title, description, files changed, code diff
+2. **AI predicts** — severity (`LOW` / `MEDIUM` / `HIGH`), component (`UI` / `BACKEND` / `DATABASE` / `API`), fix suggestion
+3. **User provides** — expected severity, component, and optionally an expected fix
+4. **System scores** — a weighted reward ∈ [0, 1] is calculated
+ 
 ---
-
+ 
 ## 📊 Reward System
-
-| Metric      | Weight |
-| ----------- | ------ |
-| Severity    | 40%    |
-| Component   | 30%    |
-| Fix Quality | 30%    |
-
-Final score ∈ [0, 1]
-
+ 
+The final score is a weighted combination of three metrics:
+ 
+| Metric | Weight | How it's measured |
+|---|---|---|
+| ⚠️ Severity match | **40%** | Exact match between predicted and expected severity |
+| 🧩 Component match | **30%** | Exact match between predicted and expected component |
+| 🔧 Fix quality | **30%** | Semantic similarity between predicted and expected fix |
+ 
+> **Final score ∈ [0, 1]** — higher is better.
+ 
 ---
-
+ 
 ## 📦 Project Structure
-
-\```bash
+ 
+```
 .
 ├── app.py              # Gradio UI + FastAPI server
-├── env.py              # OpenEnv environment
-├── baseline.py         # Rule-based agent
+├── env.py              # OpenEnv environment definition
+├── baseline.py         # Rule-based baseline agent
 ├── inference.py        # Submission entry point
-├── evaluate.py         # Evaluation script
-├── Dockerfile          # Docker build config
-├── requirements.txt
+├── evaluate.py         # Offline evaluation script
+├── Dockerfile          # Docker build configuration
+├── requirements.txt    # Python dependencies
 └── README.md
-\```
-
+```
+ 
 ---
-
+ 
 ## ⚙️ Setup & Run Locally
-
-\```bash
+ 
+**1. Clone the repo**
+```bash
+git clone https://huggingface.co/spaces/Neeraj140805/bug-triage-env
+cd bug-triage-env
+```
+ 
+**2. Install dependencies**
+```bash
 pip install -r requirements.txt
+```
+ 
+**3. Run the app**
+```bash
 python app.py
-\```
-
+```
+ 
+The Gradio UI will be available at `http://localhost:7860`.
+ 
 ---
-
+ 
+## 🐳 Run with Docker
+ 
+```bash
+docker build -t bug-triage-ai .
+docker run -p 7860:7860 bug-triage-ai
+```
+ 
+---
+ 
 ## 👨‍💻 Author
-
-Neeraj Singh
+ 
+**Neeraj Singh** — Builder of Bug Triage AI
+ 
+[![Hugging Face](https://img.shields.io/badge/Hugging_Face-Neeraj140805-FFD21E?style=flat&logo=huggingface&logoColor=black)](https://huggingface.co/Neeraj140805)
+ 
+---
+ 
+<div align="center">
+Built with ❤️ for intelligent bug triage systems
+</div>
