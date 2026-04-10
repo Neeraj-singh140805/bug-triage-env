@@ -33,7 +33,7 @@ pinned: false
  
 ### Input — Submit a Bug Report
  
-![Bug Triage AI — Input Form](screenshot_input.png)
+![Bug Triage AI — Input Form](assets/images/input.png)
  
 > Enter a bug title, description, affected files, and a code diff. Set your expected severity and component to enable scoring.
  
@@ -41,7 +41,7 @@ pinned: false
  
 ### Output — AI Analysis Results
  
-![Bug Triage AI — Output Panel](screenshot_output.png)
+![Bug Triage AI — Output Panel](assets/images/output.png)
  
 > The AI Decision Engine returns the predicted severity, component, and a fix suggestion. The reward score is calculated instantly against your expected answers.
  
