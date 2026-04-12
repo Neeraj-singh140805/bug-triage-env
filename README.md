@@ -167,7 +167,6 @@ colorFrom: purple
 colorTo: blue
 sdk: docker
 pinned: false
-
 ---
 
 <p align="center">
@@ -351,4 +350,4 @@ docker run -p 7860:7860 bug-triage-ai
 
 <p align="center">
 Built with ❤️ for intelligent bug triage systems
-</p> -->
+</p> 
